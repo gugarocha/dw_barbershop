@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import '../constants.dart';
+
 class BarbershopLoader extends StatelessWidget {
   const BarbershopLoader({super.key});
 
@@ -8,7 +10,7 @@ class BarbershopLoader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: LoadingAnimationWidget.threeArchedCircle(
-        color: Colors.brown,
+        color: ColorsConstants.brow,
         size: 60,
       ),
     );
