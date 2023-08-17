@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 
+import 'interceptors/auth_interceptor.dart';
+
 final class RestClient extends DioForNative {
   RestClient()
       : super(
@@ -15,6 +17,7 @@ final class RestClient extends DioForNative {
         requestBody: true,
         responseBody: true,
       ),
+      AuthInterceptor(),
     ]);
   }
 
