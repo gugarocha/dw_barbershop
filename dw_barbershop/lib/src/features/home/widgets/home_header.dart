@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/providers/application_providers.dart';
 import '../../../core/ui/barbershop_icons.dart';
 import '../../../core/ui/constants.dart';
+import '../../../core/ui/widgets/barbershop_loader.dart';
+import '../adm/home_adm_vm.dart';
 
-class HomeHeader extends StatelessWidget {
+class HomeHeader extends ConsumerWidget {
   final bool hideFilter;
 
   const HomeHeader({
@@ -12,7 +16,9 @@ class HomeHeader extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final barbershop = ref.watch(getMyBarbershopProvider);
+
     return Container(
       width: MediaQuery.sizeOf(context).width,
       padding: const EdgeInsets.all(24),
@@ -32,48 +38,57 @@ class HomeHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const CircleAvatar(
-                backgroundColor: Color(0XFFBDBDBD),
-                child: SizedBox.shrink(),
-              ),
-              const SizedBox(
-                width: 16,
-              ),
-              const Flexible(
-                child: Text(
-                  'Gustavo Rocha da Silveira',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+          barbershop.maybeWhen(
+            data: (barbershopData) {
+              return Row(
+                children: [
+                  const CircleAvatar(
+                    backgroundColor: Color(0XFFBDBDBD),
+                    child: SizedBox.shrink(),
                   ),
-                ),
-              ),
-              const SizedBox(
-                width: 16,
-              ),
-              const Expanded(
-                child: Text(
-                  'editar',
-                  style: TextStyle(
-                    color: ColorsConstants.brow,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(
+                    width: 16,
                   ),
-                ),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  BarbershopIcons.exit,
-                  color: ColorsConstants.brow,
-                  size: 32,
-                ),
-              )
-            ],
+                  Flexible(
+                    child: Text(
+                      barbershopData.name,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 16,
+                  ),
+                  const Expanded(
+                    child: Text(
+                      'editar',
+                      style: TextStyle(
+                        color: ColorsConstants.brow,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      ref.read(homeAdmVmProvider.notifier).logout();
+                    },
+                    icon: const Icon(
+                      BarbershopIcons.exit,
+                      color: ColorsConstants.brow,
+                      size: 32,
+                    ),
+                  )
+                ],
+              );
+            },
+            orElse: () {
+              return const BarbershopLoader();
+            },
           ),
           const SizedBox(
             height: 24,

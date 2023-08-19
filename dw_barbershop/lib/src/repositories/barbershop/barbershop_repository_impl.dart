@@ -24,7 +24,7 @@ class BarbershopRepositoryImpl implements BarbershopRepository {
     switch (userModel) {
       case UserModelAdm():
         final Response(data: List(first: data)) = await restClient.auth.get(
-          'barbershop',
+          '/barbershop',
           queryParameters: {'user_id': '#userAuthRef'},
         );
         return Success(BarbershopModel.fromMap(data));
