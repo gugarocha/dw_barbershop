@@ -119,4 +119,83 @@ class UserRepositoryImpl implements UserRepository {
       );
     }
   }
+
+  @override
+  Future<Either<RepositoryException, Nil>> registerAdmAsEmployee(
+    ({List<String> workdays, List<int> workHours}) userModel,
+  ) async {
+    try {
+      final userModelResult = await me();
+
+      final int userId;
+
+      switch (userModelResult) {
+        case Success(value: UserModel(:final id)):
+          userId = id;
+        case Failure(:final exception):
+          return Failure(exception);
+      }
+
+      await restClient.auth.put(
+        '/users/$userId',
+        data: {
+          'work_days': userModel.workdays,
+          'work_hours': userModel.workHours,
+        },
+      );
+
+      return Success(nil);
+    } on DioException catch (e, s) {
+      log(
+        'Erro ao inserir administrador como colaborador',
+        error: e,
+        stackTrace: s,
+      );
+      return Failure(
+        RepositoryException(
+          message: 'Erro ao inserir administrador como colaborador',
+        ),
+      );
+    }
+  }
+
+  @override
+  Future<Either<RepositoryException, Nil>> registerEmployee(
+    ({
+      int barbershopId,
+      String email,
+      String name,
+      String password,
+      List<String> workdays,
+      List<int> workHours
+    }) userModel,
+  ) async {
+    try {
+      await restClient.auth.post(
+        '/users',
+        data: {
+          'barbershop_id': userModel.barbershopId,
+          'name': userModel.name,
+          'email': userModel.email,
+          'password': userModel.password,
+          'profile': 'EMPLOYEE',
+          'work_days': userModel.workdays,
+          'work_hours': userModel.workHours,
+        },
+      );
+
+      return Success(nil);
+    } on DioException catch (e, s) {
+      log(
+        'Erro ao inserir administrador como colaborador',
+        error: e,
+        stackTrace: s,
+      );
+      return Failure(
+        RepositoryException(
+          message: 'Erro ao inserir administrador como colaborador',
+        ),
+      );
+    }
+  }
 }
