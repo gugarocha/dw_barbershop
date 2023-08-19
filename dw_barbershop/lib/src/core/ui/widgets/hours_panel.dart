@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../constants.dart';
 
-class HoursPanel extends StatelessWidget {
+class HoursPanel extends StatefulWidget {
   final int startTime;
   final int endTime;
   final ValueChanged<int> onHourChanged;
   final List<int>? enabledTimes;
+  final bool singleSelection;
 
   const HoursPanel({
     super.key,
@@ -14,10 +15,32 @@ class HoursPanel extends StatelessWidget {
     required this.endTime,
     required this.onHourChanged,
     this.enabledTimes,
-  });
+  }) : singleSelection = false;
+
+  const HoursPanel.singleSelection({
+    super.key,
+    required this.startTime,
+    required this.endTime,
+    required this.onHourChanged,
+    this.enabledTimes,
+  }) : singleSelection = true;
 
   @override
+  State<HoursPanel> createState() => _HoursPanelState();
+}
+
+class _HoursPanelState extends State<HoursPanel> {
+  int? lastSelection;
+  
+  @override
   Widget build(BuildContext context) {
+    final HoursPanel(
+      :singleSelection,
+      :startTime,
+      :endTime,
+      :enabledTimes,
+    ) = widget;
+
     return Column(
       children: [
         const Text(
@@ -39,7 +62,20 @@ class HoursPanel extends StatelessWidget {
                 enabledTimes: enabledTimes,
                 label: '${i.toString().padLeft(2, '0')}:00',
                 value: i,
-                onPressed: onHourChanged,
+                timeSelected: lastSelection,
+                singleSelection: singleSelection,
+                onPressed: (timeSelected) {
+                  setState(() {
+                    if (singleSelection) {
+                      if (lastSelection == timeSelected) {
+                        lastSelection = null;
+                      } else {
+                        lastSelection = timeSelected;
+                      }
+                    }
+                  });
+                  widget.onHourChanged(timeSelected);
+                },
               )
           ],
         ),
@@ -53,13 +89,17 @@ class TimeButton extends StatefulWidget {
   final int value;
   final ValueChanged<int> onPressed;
   final List<int>? enabledTimes;
+  final bool singleSelection;
+  final int? timeSelected;
 
   const TimeButton({
     super.key,
+    this.enabledTimes,
     required this.label,
     required this.value,
     required this.onPressed,
-    this.enabledTimes,
+    required this.singleSelection,
+    required this.timeSelected,
   });
 
   @override
@@ -71,12 +111,29 @@ class _TimeButtonState extends State<TimeButton> {
 
   @override
   Widget build(BuildContext context) {
+    final TimeButton(
+      :enabledTimes,
+      :label,
+      :value,
+      :onPressed,
+      :singleSelection,
+      :timeSelected,
+    ) = widget;
+
+    if (singleSelection) {
+      if (timeSelected != null) {
+        if (timeSelected == value) {
+          selected = true;
+        } else {
+          selected = false;
+        }
+      }
+    }
+
     var buttonColor = selected ? ColorsConstants.brow : Colors.white;
     final textColor = selected ? Colors.white : ColorsConstants.grey;
     final buttonBorderColor =
         selected ? ColorsConstants.brow : ColorsConstants.grey;
-
-    final TimeButton(:enabledTimes, :label, :value, :onPressed) = widget;
 
     final disableTime = enabledTimes != null && !enabledTimes.contains(value);
     if (disableTime) {
